@@ -1,72 +1,67 @@
 import numpy as np
 
-def find_indices(list_to_check, item_to_find):
-    array = np.array(list_to_check)
-    indices = np.where(array == item_to_find)[0]
-    return list(indices)
 
-# def is_bigger_present(list_to_check, item_to_check):
-#     if item_to_check == None:
-#         return None
-#     for i in list_to_check:
-#         if i>item_to_check:
-#             return i
-#     return None
-
-def is_bigger_present(list_to_check, item_to_check, k, result, m):
-    if k == m-1:
-        for i in list_to_check[k]:
-            if i > item_to_check:
-                result.append(i)
-                return i
-    for i in list_to_check[k]:
-        if i > item_to_check:
-            if is_bigger_present(list_to_check, i, k+1, result, m):
-                result.append(i)
-                return i
+class Number:
+    def __init__(self, indeces, prev, following):
+        self.indeces = indeces
+        self.prev = prev
+        self.following = following
 
 
-# def func(list_to_check):
-#     result = []
-#     # for i in indeces[0]:
-#     #     if is_bigger_present(indeces[3], is_bigger_present(indeces[2], is_bigger_present(indeces[1], i))):
-#     #         result.append(i)
-#     for i in range(0, len(list_to_check)):
-#         for j in i:
-#             if is_bigger_present(i+1, j)
+class List:
+    def __init__(self, num):
+        self.start = num
+        self.end = self.start
+
+    def add_number(self, indeces):
+        self.end.following = Number(indeces, self.end, None)
+        self.end = self.end.following
+
+
+def find_indices(minimum, list_to_check, item_to_find):
+    list_to_check = np.array(list_to_check)
+    list_to_check = np.where(list_to_check == item_to_find)
+    list_to_check = np.array(list_to_check)
+    list_to_check = list_to_check[list_to_check > minimum]
+    return list_to_check
+
+
+def fix(list_to_fix, maximum):
+    list_to_fix = np.array(list_to_fix)
+    list_to_fix = list_to_fix[list_to_fix < maximum]
+    return list_to_fix
+
 
 main = input().split()
 n = int(main[0])
 m = int(main[1])
 k = int(main[2])
-unique_list = []
 
 bajtek = input().split()
 bitek = input().split()
 
-indeces = []
-for i in bitek:
-    indeces.append(find_indices(bajtek, i))
+numbers = List(Number(find_indices(-1, bajtek, bitek[0]), None, None))
+for i in range(1, m):
+    numbers.add_number(find_indices(numbers.end.indeces[0], bajtek, bitek[i]))
 
-result = []
-if len(indeces) > 1:
-    for i in indeces[0]:
-        if is_bigger_present(indeces, i, 1, result, m) != None:
-            result.append(i)
-else:
-    result = indeces[0]
-
-
-for x in result:
-    if x not in unique_list:
-        unique_list.append(x)
-
-final = []
+number = numbers.end
+number = number.prev
+while number is not None:
+    number.indeces = fix(number.indeces, number.following.indeces[-1])
+    number = number.prev
 
 for i in range(0, n):
-    final.append(0)
+    bajtek[i] = '0'
+unique_list = []
+number = numbers.start
 
-for i in range(0, len(unique_list)):
-    final[unique_list[i]] = 1
+while number is not None:
+    for j in number.indeces:
+        if j not in unique_list:
+            unique_list.append(j)
+    number = number.following
 
-print(*final, sep=" ")
+for i in unique_list:
+    bajtek[i] = '1'
+
+print(*bajtek, sep=" ")
